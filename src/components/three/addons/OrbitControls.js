@@ -23,7 +23,7 @@ function OrbitControls(props, ref) {
     //     console.log('OrbitControls useEffect')
     // }, [])
 
-    // const [v] = React.useState(0)
+    const [v] = React.useState(0)
 
     // return <mesh position={[-0.5, 0, 0]}>
     //     <boxBufferGeometry/>

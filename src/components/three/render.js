@@ -2,7 +2,14 @@ import omit from "lodash-es/omit";
 // import Reconciler from 'react-reconciler'
 import {ThreeContext} from "./contexts";
 
-const {Reconciler}=ReactReconciler
+// const {Reconciler}=ReactReconciler
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+window.React = React;
+window.ReactDOM = ReactDOM;
+
+console.log('render.js')
 
 function applyProps(instance, newProps, oldProps) {
     const sameProps = Object.keys(newProps).filter(
@@ -43,7 +50,7 @@ function appendChild(parentInstance, child) {
     }
 }
 
-const Renderer = Reconciler({
+const Renderer = ReactReconciler.Reconciler({
     now: () => Date.now(),
     supportsMutation: true,
     isPrimaryRenderer: false,
