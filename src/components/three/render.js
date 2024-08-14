@@ -1,10 +1,55 @@
-import {useEffect, useRef, useCallback, useState} from "react";
-import upperFirst from "lodash-es/upperFirst";
+import omit from "lodash-es/omit";
+// import Reconciler from 'react-reconciler'
+import {ThreeContext} from "./contexts";
 
-const Renderer = ReactReconciler.Reconciler({
+const {Reconciler}=ReactReconciler
+
+function applyProps(instance, newProps, oldProps) {
+    const sameProps = Object.keys(newProps).filter(
+        (key) => newProps[key] === oldProps[key]
+    );
+    const handlers = Object.keys(newProps).filter(
+        (key) => typeof newProps[key] === "function" && key.startsWith("on")
+    );
+    const filteredProps = omit(newProps, [
+        ...sameProps,
+        ...handlers,
+        "children",
+        "key",
+        "ref"
+    ]);
+    if (Object.keys(filteredProps).length > 0) {
+        Object.entries(filteredProps).map(([key, value]) => {
+            const [targetName, ...entries] = key
+                .replace(/([a-z])([A-Z])/g, "$1 $2")
+                .split(" ")
+                .reverse();
+            // console.log(key, targetName, entries);
+            const target = entries
+                .reverse()
+                .reduce((acc, key) => acc[key.toLowerCase()], instance);
+            target[targetName.toLowerCase()] = value;
+        });
+    }
+    if (newProps.ref) {
+        newProps.ref.current = instance;
+    }
+}
+
+function appendChild(parentInstance, child) {
+    console.log('appendChildToContainer parentInstance', parentInstance, child)
+    if (parentInstance && child) {
+        parentInstance.add(child)
+    }
+}
+
+const Renderer = Reconciler({
     now: () => Date.now(),
     supportsMutation: true,
     isPrimaryRenderer: false,
+    supportsPersistence: false,
+    supportsHydration: false,
+    noTimeout: -1,
     clearContainer() {
     },
     getPublicInstance(instance) {
@@ -24,25 +69,25 @@ const Renderer = ReactReconciler.Reconciler({
         hostContext,
         internalInstanceHandle
     ) {
-        // console.log(
-        //   "createInstance",
-        //   type,
-        //   props,
-        //   rootContainerInstance,
-        //   hostContext,
-        //   internalInstanceHandle
-        // );
-        const instance = new THREE[upperFirst(type)]();
-        return instance;
+        console.log('Reconciler type', type)
+        let instance
+        if (type === 'primitive') {
+            instance = props.object
+        } else {
+            const {args = [], ...others} = props
+            if (!Array.isArray(args)) throw new Error('The args prop must be an array!')
+            let typeName = `${type[0].toUpperCase()}${type.slice(1)}`
+            instance = new THREE[typeName](...args)
+        }
+        applyProps(instance, props, {})
+        return instance
     },
     createTextInstance() {
     },
     appendInitialChild(parentInstance, child) {
-        // console.log("appendInitialChild", parentInstance, child);
-        if (child) parentInstance.add(child);
+        if (parentInstance && child) parentInstance.add(child);
     },
     finalizeInitialChildren(instance, type, props, rootContainerInstance) {
-        // console.log("finalizeInitialChildren", instance, type, props);
         applyProps(instance, props, {});
     },
     prepareUpdate(
@@ -63,18 +108,18 @@ const Renderer = ReactReconciler.Reconciler({
     shouldSetTextContent(props) {
     },
     appendChild(parentInstance, child) {
-        // console.log("appendChild", parentInstance, child);
-        if (child) parentInstance.add(child);
+        appendChild(parentInstance, child)
     },
     appendChildToContainer(parentInstance, child) {
-        // console.log("appendChildToContainer", parentInstance, child);
-        if (child) parentInstance.add(child);
+        appendChild(parentInstance, child)
     },
     insertBefore(parentInstance, child, beforeChild) {
     },
     removeChild(parentInstance, child) {
+        if (parentInstance && child) parentInstance.remove(child)
     },
     removeChildFromContainer(parentInstance, child) {
+        if (parentInstance && child) parentInstance.remove(child)
     },
     commitUpdate(instance, updatePayload, type, oldProps, newProps) {
     },
@@ -84,7 +129,9 @@ const Renderer = ReactReconciler.Reconciler({
     }
 })
 
-export function render(element, container) {
+const roots = new Map();
+
+export function render(children, container) {
     // console.log("custom render");
     let root = roots.get(container);
     if (!root) {
@@ -92,7 +139,7 @@ export function render(element, container) {
         roots.set(container, root);
     }
 
-    Renderer.updateContainer(element, root, null, undefined);
+    Renderer.updateContainer(children, root, null, () => undefined);
     return Renderer.getPublicRootInstance(root);
 }
 

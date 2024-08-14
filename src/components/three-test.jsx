@@ -1,5 +1,6 @@
 import React, {useRef} from 'react';
 import {Canvas, useFrame} from "./three";
+import OrbitControls from "./three/addons/OrbitControls";
 
 function ThreeTest(props) {
     const boxRef = useRef();
@@ -28,6 +29,7 @@ function ThreeTest(props) {
                             rotationX={2}
                         />
                     </group>
+                    <OrbitControls/>
                 </Canvas>
             </div>
             <div style={{display: 'inline-block', width: '48%'}}>

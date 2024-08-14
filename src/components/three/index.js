@@ -1,6 +1,11 @@
 import {useEffect, useRef} from "react";
 import upperFirst from "lodash-es/upperFirst";
 import omit from "lodash-es/omit";
+import Reconciler from 'react-reconciler'
+
+
+// const {Reconciler} = window.ReactReconciler
+
 
 function applyProps(instance, newProps, oldProps) {
     const sameProps = Object.keys(newProps).filter(
@@ -35,7 +40,7 @@ function applyProps(instance, newProps, oldProps) {
 }
 
 const roots = new Map();
-const Renderer = ReactReconciler.Reconciler({
+const Renderer = Reconciler({
     now: () => Date.now(),
     supportsMutation: true,
     isPrimaryRenderer: false,

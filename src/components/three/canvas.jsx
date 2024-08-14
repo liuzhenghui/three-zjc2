@@ -1,29 +1,41 @@
-import React, {useEffect, useRef, useImperativeHandle, useState} from "react";
-import {render, unmountComponentAtNode} from "./index";
+import React, {useEffect, useRef, useImperativeHandle, useState, useLayoutEffect} from "react";
+import render from "./render";
+import {ThreeContext} from "./contexts";
 
-export function Canvas(props, ref) {
+function Block({set}) {
+    useLayoutEffect(() => {
+        set(new Promise(() => null))
+        return () => set(false)
+    }, [])
+    return null
+}
+
+function Canvas(props, forwardedRef) {
     const {children, frameUpdates = []} = props
+
+    const canvasRef = useRef()
 
     const rendererRef = useRef()
     const sceneRef = useRef()
     const cameraRef = useRef()
 
+    const [block, setBlock] = React.useState(false)
     const [t, setT] = useState(0)
 
-    if (!ref) ref = useRef()
+    useImperativeHandle(forwardedRef, () => canvasRef.current)
 
 
     useEffect(() => {
-        console.log('useScene init', ref.current?.parentElement)
-        if (ref.current) {
-            const width = ref.current?.parentElement?.clientWidth || 800
-            const height = ref.current?.parentElement?.clientHeight || 800
+        console.log('useScene init', canvasRef.current?.parentElement)
+        if (canvasRef.current) {
+            const width = canvasRef.current?.parentElement?.clientWidth || 800
+            const height = canvasRef.current?.parentElement?.clientHeight || 800
 
             console.log('canvas', width, height)
 
             sceneRef.current = new THREE.Scene()
 
-            rendererRef.current = new THREE.WebGLRenderer({canvas: ref.current, antialias: true});
+            rendererRef.current = new THREE.WebGLRenderer({canvas: canvasRef.current, antialias: true});
             rendererRef.current.setSize(width, height);
             rendererRef.current.setClearColor(0x4682B4, 0.6);
             rendererRef.current.setClearAlpha(0.6)
@@ -56,20 +68,32 @@ export function Canvas(props, ref) {
     }, [])
 
     useEffect(() => {
-        if (sceneRef.current) render(children, sceneRef.current)
+        console.log('Canvas useEffect')
+        if (sceneRef.current) {
+            render(
+                children,
+                sceneRef.current,
+            )
+        }
 
         return () => {
-            unmountComponentAtNode(sceneRef.current);
+            // unmountComponentAtNode(sceneRef.current);
         }
+    }, [children])
+
+    useLayoutEffect(() => {
     }, [])
 
     return (
-        <div style={{width: '100%', height: '100%'}}>
-            <canvas ref={ref} t={new Date().getTime()}/>
-            <div style={{width: '100%'}}>
-                <button onClick={() => setT(t + 1)}>t{t}</button>
+        <ThreeContext.Provider
+            value={{renderer: rendererRef.current, scene: sceneRef.current, camera: cameraRef.current}}>
+            <div style={{width: '100%', height: '100%'}}>
+                <canvas ref={canvasRef} t={new Date().getTime()}/>
+                <div style={{width: '100%'}}>
+                    <button onClick={() => setT(t + 1)}>t{t}</button>
+                </div>
             </div>
-        </div>
+        </ThreeContext.Provider>
     )
 }
 

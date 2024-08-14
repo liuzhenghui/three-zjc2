@@ -11,7 +11,7 @@ function useThree() {
         return React.forwardRef((props, ref) => {
             return <Canvas {...props} ref={ref} frameUpdates={frameUpdates}/>
         })
-    }, [])
+    }, [frameUpdates])
 
     return {
         Canvas: CanvasWrapper,
