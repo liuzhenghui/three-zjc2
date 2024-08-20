@@ -43,10 +43,7 @@ function Home(props) {
                 <Building
                     position={[0, -150, 250]}
                     onLoad={floors => setFloors(floors)}
-                    onSelect={floor => {
-                        console.log('onSelect', floor)
-                        setFloor(floor)
-                    }}
+                    onSelect={floor => setFloor(floor)}
                 />
                 <CameraControls maxPolarAngle={90 / 180 * Math.PI}/>
                 {!loading ? <Animation to={[38, 4, 470]} time={2000}/> : null}

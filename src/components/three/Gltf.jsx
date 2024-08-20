@@ -11,7 +11,7 @@ const GltfImpl = forwardRef((props, ref) => {
 
     if (!dracoLoader) {
         dracoLoader = new Addons.DRACOLoader()
-        dracoLoader.setDecoderPath('${appRes}/draco/')
+        dracoLoader.setDecoderPath('${appRes}/')
     }
     if (onLoad && onLoads.indexOf(onLoad) === -1) onLoads.push(onLoad)
     if (onProgress && onProgresses.indexOf(onProgress) === -1) onProgresses.push(onProgress)
@@ -48,15 +48,13 @@ const GltfImpl = forwardRef((props, ref) => {
         }
     }, [])
 
-    console.log('scene', scene)
-
     if (overall) {
         return <primitive {...others} object={scene} ref={ref}/>
     } else {
         return (
             <primitive {...others} object={scene} ref={ref}>
                 {scene?.children?.map?.((it, index) => (
-                    <primitive {...childrenProps} object={it}>
+                    <primitive key={index} {...childrenProps} object={it}>
                         <Drei.Html
                             className="three-label"
                             ref={r => it.__label = r}

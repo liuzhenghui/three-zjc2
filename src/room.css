@@ -1,0 +1,24 @@
+
+.room-label {
+    background-color: #fff;
+    width: 120px;
+    height: 30px;
+    padding: 5px;
+    box-shadow: 0 0 10px #ddd;
+    border-radius: 3px;
+}
+
+.room-label:before {
+    content: "";
+    position: absolute;
+    bottom: -19px;
+    left: 10px;
+    border: 10px solid transparent;
+    border-bottom-color: #fff;
+    transform: rotate(180deg);
+}
+
+.room-detail {
+    width: 200px;
+    height: 100px;
+}
