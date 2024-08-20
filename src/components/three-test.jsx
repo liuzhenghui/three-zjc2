@@ -1,55 +1,56 @@
-import React, {useRef} from 'react';
-import {Canvas, useFrame} from "./three";
-import OrbitControls from "./three/addons/OrbitControls";
+import React, {useEffect, useRef, useState, Suspense} from 'react';
+import SubThree from "./sub-three";
+
+function Test() {
+    const {Addons, Fiber} = window.ThreeLibs
+
+    const {scene} = Fiber.useLoader(Addons.GLTFLoader, 'resources/models/zjc/1.glb')
+
+    return <primitive object={scene}/>
+}
 
 function ThreeTest(props) {
-    const boxRef = useRef();
-    const boxRef2 = useRef();
+    const {Three, Addons, Fiber, Drei} = window.ThreeLibs
 
-    useFrame(() => {
-        boxRef.current.rotation.x += 0.01;
-        boxRef2.current.rotation.x += 0.02;
-    });
+    const boxRef = useRef();
+    const [hovered, setHover] = useState(false)
+    const [visible, setVisible] = useState(false)
+
+    useEffect(() => {
+
+        let requestId
+        const frame = () => {
+            if (boxRef.current) boxRef.current.rotation.x += 0.01
+            requestId = requestAnimationFrame(frame)
+        }
+        frame()
+
+        return () => requestId && cancelAnimationFrame(requestId)
+    })
 
     return (
         <div style={{width: '100%', height: '100%'}}>
-            <div style={{display: 'inline-block', width: '48%'}}>
-                <Canvas>
-                    <group>
-                        <mesh
-                            ref={boxRef}
-                            geometry={new THREE.BoxGeometry(5, 5, 1)}
-                            material={
-                                new THREE.MeshBasicMaterial({
-                                    color: 0x00ff00,
-                                    transparent: true
-                                })
-                            }
-                            // materialColor={new THREE.Color(0xff0000)}
-                            rotationX={2}
-                        />
-                    </group>
-                    <OrbitControls/>
-                </Canvas>
-            </div>
-            <div style={{display: 'inline-block', width: '48%'}}>
-                <Canvas>
-                    <group>
-                        <mesh
-                            ref={boxRef2}
-                            geometry={new THREE.BoxGeometry(5, 5, 1)}
-                            material={
-                                new THREE.MeshBasicMaterial({
-                                    color: 0x00ff00,
-                                    transparent: true
-                                })
-                            }
-                            materialColor={new THREE.Color(0xff0000)}
-                            rotationX={2}
-                        />
-                    </group>
-                </Canvas>
-            </div>
+            <Fiber.Canvas>
+                <directionalLight args={[0xffffff, 3]} position={[1500, 800, 1870]}/>
+                <pointLight position={[10, 10, 10]}/>
+                <group>
+                    <mesh
+                        ref={boxRef}
+                        onPointerOver={() => setHover(true)}
+                        onPointerOut={() => setHover(false)}
+                        onClick={() => setVisible(true)}
+                    >
+                        <boxGeometry args={[2, 2, 2]}/>
+                        <meshStandardMaterial/>
+                        <meshStandardMaterial color={hovered ? "hotpink" : "orange"}/>
+                    </mesh>
+                </group>
+                <Suspense fallback={null}>
+                    <Test/>
+                </Suspense>
+                <Drei.OrbitControls/>
+            </Fiber.Canvas>
+            {visible ? (<SubThree/>) : null}
         </div>
     )
 }

@@ -1,11 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-
-console.log('index.js')
+import './index.css'
+import './home.css'
+import './building.css'
 
 import App from './App'
 
-ReactDOM.render(
-    <App/>,
-    document.getElementById('root')
-)
+window.React = React;
+window.ReactDOM = ReactDOM;
+
+ReactDOM.render(<App/>, document.getElementById('root'))
