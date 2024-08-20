@@ -17,15 +17,16 @@ function Room(props) {
             object={object}
             onPointerEnter={e => {
                 e.srcElement.style.cursor = 'pointer'
+                object.__label2.style.display = 'block'
             }}
             onPointerOut={e => {
                 e.srcElement.style.cursor = 'auto'
+                object.__label2.style.display = 'none'
             }}
         >
             <Drei.Html
                 className="room-label"
                 ref={r => object.__label = r}
-                transform1
                 position={[0, 6, -1]}
             >
                 <div>xxx有限公司</div>
@@ -34,7 +35,7 @@ function Room(props) {
                 className="room-label room-detail"
                 ref={r => object.__label2 = r}
                 transform1
-                position={[0, 16, -1]}
+                position={[0, 12, 0]}
             >
                 <div>3107 213平方</div>
                 <div>xxx有限公司</div>

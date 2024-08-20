@@ -19,6 +19,12 @@
 }
 
 .room-detail {
+    display: none;
     width: 200px;
     height: 100px;
+    background-color: #ffb580;
+}
+
+.room-detail:before {
+    border-bottom-color: #ffb580;
 }
